@@ -4,7 +4,7 @@
 
 ## 前言
 
-完整项目请转https://github.com/WIN0624/Weibo_RepostRelationship_Visualization_Platform，此部分为项目的爬虫模块，爬虫的任务是爬取[手机版微博](https://m.weibo.cn/)数据。
+完整项目请转[Weibo_RepostRelationship_Visualization_Platform](https://github.com/WIN0624/Weibo_RepostRelationship_Visualization_Platform)，此部分为项目的爬虫模块，爬虫的任务是爬取[手机版微博](https://m.weibo.cn/)数据。
 
 ## 思路
 
