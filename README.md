@@ -18,7 +18,7 @@ HTTP网络传输中的数据组织方式有三种方式：
 
 打开[手机版微博](https://m.weibo.cn/)首页，按下F12，选择【网络】-【XHR】，可以看到接收到如下数据：
 
-<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635230542661.png" alt="1635230542661" style="zoom:50%;" />
+<img src="https://github.com/zhongshsh/Images/blob/main/1635230542661.png" alt="1635230542661" style="zoom:50%;" />
 
 因此确定微博的数据组织方式为JSON。
 
@@ -30,19 +30,19 @@ HTTP网络传输中的数据组织方式有三种方式：
 
 先分析【检索结果页】，如下所示：
 
-<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635230892352.png" alt="1635230892352" style="zoom:50%;" />
+<img src="https://github.com/zhongshsh/Images/blob/main/1635230892352.png" alt="1635230892352" style="zoom:50%;" />
 
-<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635231244505.png" alt="1635231244505" style="zoom:50%;" />
+<img src="https://github.com/zhongshsh/Images/blob/main/1635231244505.png" alt="1635231244505" style="zoom:50%;" />
 
 点击链接，跳到数据页面：
 
-<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635231309006.png" alt="1635231309006" style="zoom:50%;" />
+<img src="https://github.com/zhongshsh/Images/blob/main/1635231309006.png" alt="1635231309006" style="zoom:50%;" />
 
 可以看到访问的链接带有我们的检索关键词【新冠疫情】，到这一步我们已经get到检索的地址。
 
 将进度条往下拉，可以看到数据有出现了page=2，说明微博是实时拉取数据的，新数据的地址以page值的形式进行更新。
 
-<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635231425980.png" alt="1635231425980" style="zoom:50%;" />
+<img src="https://github.com/zhongshsh/Images/blob/main/1635231425980.png" alt="1635231425980" style="zoom:50%;" />
 
 到此，检索页已经分析完毕。
 
@@ -50,11 +50,11 @@ HTTP网络传输中的数据组织方式有三种方式：
 
 预览检索页内容，我们可以发现检索页提供了很多信息：
 
-<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635231642037.png" alt="1635231642037" style="zoom:50%;" />
+<img src="https://github.com/zhongshsh/Images/blob/main/1635231642037.png" alt="1635231642037" style="zoom:50%;" />
 
 这里的0~9共十条微博就是展示在检索结果页的【发表的微博】的【简要信息】，具体大家见网页。但是我们还需要爬取每一条微博的转发关系，所以我点击进入微博详情页：
 
-<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635231830101.png" alt="1635231830101" style="zoom:50%;" />
+<img src="https://github.com/zhongshsh/Images/blob/main/1635231830101.png" alt="1635231830101" style="zoom:50%;" />
 
 可以看到repost【转发】信息的访问地址，这里的id是被转发微博的id，可以在【检索结果页】中获取。至此，爬取分析完毕。
 
