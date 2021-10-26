@@ -2,6 +2,9 @@
 
 无需登录，但是过渡频繁访问会导致IP封号几个小时，项目中使用了几种方法缓解这一问题。
 
+* proxyPool: 来自GitHub的proxyPool构建代码，主要增加了几个免费代理爬虫
+* spider: 我们项目爬虫代码
+
 ## 1. 前言
 
 完整项目请转[Weibo_RepostRelationship_Visualization_Platform](https://github.com/WIN0624/Weibo_RepostRelationship_Visualization_Platform)，此部分为项目的爬虫模块，爬虫的任务是爬取[手机版微博](https://m.weibo.cn/)数据。
@@ -90,5 +93,5 @@ HTTP网络传输中的数据组织方式有三种方式：
 * 使用python time sleep，控制爬虫。
 * 使用多个url爬取一类信息。相同的信息【例如用户粉丝数据】往往在不同的url中出现。
 
-终极配置：主要使用的是GitHub上的这个[代理池](https://github.com/Python3WebSpider/PorxyPool)。我们在这个代理池的基础上添加了几个爬虫。很重要的一点是，http的网页需要https的代理ip，https的网页需要http的代理ip。经过我的测试，从免费代理中爬取到的ip基本上是失效的……所以，可以尝试花点小钱~~
+终极配置：主要使用的是GitHub上的这个[代理池](https://github.com/Python3WebSpider/ProxyPool)。我们在这个代理池的基础上添加了几个爬虫。很重要的一点是，http的网页需要https的代理ip，https的网页需要http的代理ip。经过我的测试，从免费代理中爬取到的ip基本上是失效的……所以，可以尝试花点小钱~~
 
