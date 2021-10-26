@@ -15,10 +15,12 @@ import json
 import sys
 from imp import reload
 
+
 def pageSearchFor_uid(searchQuery):
     try:
         info = {}
-        response = requests.get("https://m.weibo.cn/api/container/getIndex?containerid=100103type%3D3%26q%3D" + searchQuery + "%26t%3D0&page_type=searchall")
+        response = requests.get(
+            "https://m.weibo.cn/api/container/getIndex?containerid=100103type%3D3%26q%3D" + searchQuery + "%26t%3D0&page_type=searchall")
         print(response.url)
         response.raise_for_status()
         jsonscript = json.loads(response.content.decode('utf-8'))
@@ -26,22 +28,26 @@ def pageSearchFor_uid(searchQuery):
             # length = len(json.get('data').get('cards')[1].get('card_group'))
             for userCard in jsonscript.get('data').get('cards')[1].get('card_group'):
                 if userCard.get('user').get('screen_name') == searchQuery:
-                    info['followers_count'] = userCard.get('user').get('followers_count')
+                    info['followers_count'] = userCard.get(
+                        'user').get('followers_count')
                     print(info['followers_count'])
-                    info['follow_count'] = userCard.get('user').get('follow_count')
+                    info['follow_count'] = userCard.get(
+                        'user').get('follow_count')
                     info['gender'] = userCard.get('user').get('gender')
                     info['uid'] = userCard.get('user').get('id')
-                    info['screen_name'] = userCard.get('user').get('screen_name')
+                    info['screen_name'] = userCard.get(
+                        'user').get('screen_name')
                     info['verified'] = userCard.get('user').get('verified')
-                    info['profile_url'] = userCard.get('user').get('profile_url')
+                    info['profile_url'] = userCard.get(
+                        'user').get('profile_url')
                     print("successfully find the user!")
                     break
             if info == {}:
                 print("Warning: 无精确匹配用户")
         else:
             print("Warning: 该用户不存在")
-    except Exception as e: 
-        print('Error:\n',e)
+    except Exception as e:
+        print('Error:\n', e)
 
     return info
 
@@ -49,7 +55,7 @@ def pageSearchFor_uid(searchQuery):
 # 测试用
 # if __name__ == "__main__":
 #     reload(sys)
-#     sys.setdefaultencoding('utf8') 
+#     sys.setdefaultencoding('utf8')
 #     info = pageSearchFor_uid('')
 #     print(info['uid'])
 #     print(info['followers_count'])
@@ -57,6 +63,6 @@ def pageSearchFor_uid(searchQuery):
 #     print(info['gender'])
 #     print(info['uid'])
 #     print(info['screen_name'])
-#     print(info['verified'])                
+#     print(info['verified'])
 #     print(info['profile_url'])
 # *************************************

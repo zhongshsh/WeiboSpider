@@ -33,13 +33,17 @@ def word_spider():
             else:
                 config['breakPoint'] = False
 
-            print(f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  EPOCH: {epoch}. Keyword: {wd}.')
+            print(
+                f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  EPOCH: {epoch}. Keyword: {wd}.')
             search_file = hot_dir + 'search_result_' + str(wd) + '.csv'
-            repost_file = repost_dir + 'repost_Relationship_' + str(wd) + '.csv'
+            repost_file = repost_dir + \
+                'repost_Relationship_' + str(wd) + '.csv'
             # 创建两个写的对象,同时创建文件
             # 如果是断点，则不创建新文件，只指定各文件的字段
-            search_writer = csvWriter(search_file, search=True, breakpos=config['breakPoint'])
-            repost_writer = csvWriter(repost_file, repost=True, breakpos=config['breakPoint'])
+            search_writer = csvWriter(
+                search_file, search=True, breakpos=config['breakPoint'])
+            repost_writer = csvWriter(
+                repost_file, repost=True, breakpos=config['breakPoint'])
             # 需要临时目录来存储多个进程的文件
             temp = repost_dir + wd + '/'
 
@@ -49,28 +53,34 @@ def word_spider():
                 # 获取该检索词的所有相关微博，至多能获取1000条
                 # 因为Python不兼容多进程的日志，而之后repost需要多进程
                 # 所以凡日志输出，都需要新开进程处理
-                print(f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Start searching keyword: {wd}.')
+                print(
+                    f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Start searching keyword: {wd}.')
                 p = Pool(1)
                 p.apply_async(word_get_query_info, args=(wd, search_writer))
                 p.close()
                 p.join()
-                print(f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Finished searching keyword: {wd}.')
+                print(
+                    f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Finished searching keyword: {wd}.')
 
             # 获取相关微博id组成的列表
             raw_idList = search_writer.get_idList()
             # 分割待爬取转发关系的id，以便开启进程
-            idList = splitList(raw_idList, process_num, breakpos=config['breakPoint'])
+            idList = splitList(raw_idList, process_num,
+                               breakpos=config['breakPoint'])
 
             # 多进程爬取转发关系
-            print(f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Start crawling repost relationship...')
+            print(
+                f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Start crawling repost relationship...')
             # 正常爬取时，遵循用户设置的进程数
             # 断点处理时，遵循每个进程处理不多于10个center_bw_id的原则
             p = Pool(len(idList))
             for num, item in enumerate(idList):
                 if item.get('breakpos'):
-                    p.apply_async(word_repost_relationship, args=(num, temp, item['sublist'], item['breakpos']))
+                    p.apply_async(word_repost_relationship, args=(
+                        num, temp, item['sublist'], item['breakpos']))
                 else:
-                    p.apply_async(word_repost_relationship, args=(num, temp, item['sublist']))
+                    p.apply_async(word_repost_relationship,
+                                  args=(num, temp, item['sublist']))
             p.close()
             p.join()
 

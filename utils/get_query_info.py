@@ -61,7 +61,8 @@ def get_query_info(wd, writer, logger, since_date=None):
     error = {}
     # 将检索词编码，嵌入url得到不同词的url字典
     # 爬取检索页面下热门栏的页面
-    base_url = 'https://m.weibo.cn/api/container/getIndex?containerid=100103type%3D60%26q%3D' + quote(wd) + '%26t%3D0&page_type=searchall'
+    base_url = 'https://m.weibo.cn/api/container/getIndex?containerid=100103type%3D60%26q%3D' + \
+        quote(wd) + '%26t%3D0&page_type=searchall'
     # 计算可获取的总页数
     page = get_Page(wd, base_url, logger)
     # 获取包含检索词的相关微博
@@ -72,7 +73,8 @@ def get_query_info(wd, writer, logger, since_date=None):
         # logger.info(f'Page {page_count}: {this_url}')
         try:
             time.sleep(3)
-            r = requests.get(this_url, headers=get_header(), proxies=get_proxy())
+            r = requests.get(this_url, headers=get_header(),
+                             proxies=get_proxy())
             logger.info(f'Crawling Query. Page {page_count} of keyword {wd}')
             r.raise_for_status()
             r.encoding = r.apparent_encoding
@@ -86,18 +88,19 @@ def get_query_info(wd, writer, logger, since_date=None):
                     mblog['created_at'] = standardize_date(mblog['created_at'])
                     this_topic, this_text = getText(mblog)
                     this_dict = {
-                                'keyword': str(wd),
-                                'user_id': mblog['user']['id'],
-                                'screen_name': mblog['user']['screen_name'],
-                                'bw_id': mblog['id'],
-                                'repost_count': mblog['reposts_count'],
-                                'topic': this_topic,
-                                'content': this_text,
-                                'created_at': mblog['created_at']
-                            }
+                        'keyword': str(wd),
+                        'user_id': mblog['user']['id'],
+                        'screen_name': mblog['user']['screen_name'],
+                        'bw_id': mblog['id'],
+                        'repost_count': mblog['reposts_count'],
+                        'topic': this_topic,
+                        'content': this_text,
+                        'created_at': mblog['created_at']
+                    }
                     if since_date:
                         since_date = datetime.strptime(since_date, '%Y-%m-%d')
-                        created_at = datetime.strptime(mblog['created_at'], '%Y-%m-%d')
+                        created_at = datetime.strptime(
+                            mblog['created_at'], '%Y-%m-%d')
                         if (created_at > since_date):
                             if_crawl = False
                     else:

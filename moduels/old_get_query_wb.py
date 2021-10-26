@@ -52,7 +52,8 @@ def printCSV(results_list):
 
 
 def get_baseurl(wd):
-    base_url = 'https://m.weibo.cn/api/container/getIndex?containerid=100103type%3D1%26q%3D' + quote(wd) + "&page_type=searchall&page="
+    base_url = 'https://m.weibo.cn/api/container/getIndex?containerid=100103type%3D1%26q%3D' + \
+        quote(wd) + "&page_type=searchall&page="
     return base_url
 
 
@@ -66,7 +67,7 @@ def getTopic(text):
 
 def getText(mblog):
     if mblog['isLongText']:
-        text = mblog['longText']['longTextContent'] 
+        text = mblog['longText']['longTextContent']
     else:
         soup = BeautifulSoup(mblog['text'], 'html.parser')
         text = ''
@@ -79,7 +80,8 @@ def getText(mblog):
 # 输入检索词得到wbid，用户id及用户名
 def get_info(search_list, since_date=None):
     print('Start Time: ' + str(datetime.now()))
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'}
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'}
     results_list = []
     results_dict = {}
     if_crawl = True
@@ -102,20 +104,23 @@ def get_info(search_list, since_date=None):
                 if content.get('ok') == 1:
                     mblogs = jsonpath(content, '$.data.cards..mblog')
                     for mblog in mblogs:
-                        mblog['created_at'] = standardize_date(mblog['created_at'])
+                        mblog['created_at'] = standardize_date(
+                            mblog['created_at'])
                         this_topic, this_text = getText(mblog)
                         this_dict = {
-                                    '检索词': str(wd),
-                                    '用户id': mblog['user']['id'], 
-                                    '用户名': mblog['user']['screen_name'], 
-                                    '微博id': mblog['id'],
-                                    '话题': this_topic,
-                                    '微博正文': this_text,
-                                    '发表时间': mblog['created_at']
-                                }
+                            '检索词': str(wd),
+                            '用户id': mblog['user']['id'],
+                            '用户名': mblog['user']['screen_name'],
+                            '微博id': mblog['id'],
+                            '话题': this_topic,
+                            '微博正文': this_text,
+                            '发表时间': mblog['created_at']
+                        }
                         if since_date:
-                            since_date = datetime.strptime(since_date, '%Y-%m-%d')
-                            created_at = datetime.strptime(mblog['created_at'], '%Y-%m-%d')
+                            since_date = datetime.strptime(
+                                since_date, '%Y-%m-%d')
+                            created_at = datetime.strptime(
+                                mblog['created_at'], '%Y-%m-%d')
                             if (created_at > since_date):
                                 if_crawl = False
                         else:

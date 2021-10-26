@@ -10,7 +10,8 @@ def get_more_topic(query, epoch, topic_dir):
     topic_list = []
     page_count = 0
     # 获取返回的总页数
-    base_url = 'https://m.weibo.cn/api/container/getIndex?containerid=100103type%3D38%26q%3D' + str(query) + '%26t%3D0&page_type=searchall'
+    base_url = 'https://m.weibo.cn/api/container/getIndex?containerid=100103type%3D38%26q%3D' + \
+        str(query) + '%26t%3D0&page_type=searchall'
     try:
         r = requests.get(base_url, headers=get_header(), proxies=get_proxy())
         r.raise_for_status()
@@ -25,7 +26,8 @@ def get_more_topic(query, epoch, topic_dir):
         this_url = base_url + '&page=' + str(page_count)
         print(f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Crawling Topic. Page {page_count} of keyword {query}')
         try:
-            r = requests.get(this_url, headers=get_header(), proxies=get_proxy())
+            r = requests.get(this_url, headers=get_header(),
+                             proxies=get_proxy())
             r.raise_for_status()
             r.encoding = r.apparent_encoding
             content = json.loads(r.text)
@@ -38,7 +40,8 @@ def get_more_topic(query, epoch, topic_dir):
             else:
                 continue
         except Exception:
-            print(f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Error happen in page --->" + str(page_count)')
+            print(
+                f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Error happen in page --->" + str(page_count)')
 
     # 结果写入文件
     with open(topic_dir + 'Topics_' + str(epoch) + '.csv', 'a', encoding='utf-8', newline='') as f:

@@ -32,7 +32,8 @@ def word_repost_relationship(batch_num, temp_dir, searchList, breakpos=None):
         repost_file = temp_dir + breakpos['repost_file']
         repost_writer = csvWriter(repost_file, repost=True, breakpos=True)
         # 先爬取完断点id，再对余下id按常规爬取
-        get_repost_relationship(breakpos['center_bw_id'], repost_writer, level_dir, logger, breakpos)
+        get_repost_relationship(
+            breakpos['center_bw_id'], repost_writer, level_dir, logger, breakpos)
         searchList = searchList[1:]
 
     # 常规爬取
@@ -68,13 +69,16 @@ def get_repost_relationship(bw_id, repost_writer, level_dir, logger, breakpos=No
         # 创建下一层的原博文件，即该层的转发微博的微博id
         temp_file = level_dir + f'Level_{level+1}_{center_bw_id}.csv'
         if level == breakpos and breakpos.get('break_id'):
-            temp_writer = csvWriter(temp_file, temp=True, breakpos=True)   # 断点为本层的中间，所以其下一层文件早已创建，直接往后添加
+            # 断点为本层的中间，所以其下一层文件早已创建，直接往后添加
+            temp_writer = csvWriter(temp_file, temp=True, breakpos=True)
         else:
-            temp_writer = csvWriter(temp_file, temp=True)                   # 非断点，则照常创建新文件
+            # 非断点，则照常创建新文件
+            temp_writer = csvWriter(temp_file, temp=True)
 
         # 获得该层所有bw_id的直接转发关系
         for bw_id in idList:
-            get_repost_info(center_bw_id, bw_id, level, repost_writer, logger, temp_writer)
+            get_repost_info(center_bw_id, bw_id, level,
+                            repost_writer, logger, temp_writer)
         # 获取下一level的原博id
         idList = temp_writer.get_idList()
         # 删除存储本层idList的文件
@@ -142,11 +146,15 @@ def get_repost_info(center_bw_id, bw_id, level, writer, logger, temp_writer, sin
         return None
     # 转发信息爬取
     if page == 0:
-        logger.info(f'Center bw : {center_bw_id}. level: {level}. No repost of this bw {bw_id}.')
-        writer.write_csv(None, END=True, center_bw_id=center_bw_id, origin_info=origin_info, level=level)
+        logger.info(
+            f'Center bw : {center_bw_id}. level: {level}. No repost of this bw {bw_id}.')
+        writer.write_csv(None, END=True, center_bw_id=center_bw_id,
+                         origin_info=origin_info, level=level)
     else:
-        logger.info(f'Center bw : {center_bw_id}. Get {page} pages of bw {bw_id}.')
-        base_url = 'https://m.weibo.cn/api/statuses/repostTimeline?id=' + str(bw_id) + '&page='
+        logger.info(
+            f'Center bw : {center_bw_id}. Get {page} pages of bw {bw_id}.')
+        base_url = 'https://m.weibo.cn/api/statuses/repostTimeline?id=' + \
+            str(bw_id) + '&page='
         page_count = 0
         while (page_count <= page):
             page_count += 1
@@ -154,16 +162,20 @@ def get_repost_info(center_bw_id, bw_id, level, writer, logger, temp_writer, sin
             try:
                 time.sleep(7)
                 this_url = base_url + str(page_count)
-                logger.info(f'Center bw : {center_bw_id}. level: {level}. Crawling page {page_count} of bw {bw_id}.')
-                r = requests.get(this_url, headers=get_header(), proxies=get_proxy())
+                logger.info(
+                    f'Center bw : {center_bw_id}. level: {level}. Crawling page {page_count} of bw {bw_id}.')
+                r = requests.get(
+                    this_url, headers=get_header(), proxies=get_proxy())
                 r.raise_for_status()
                 r.encoding = r.apparent_encoding
                 content = json.loads(r.text)
                 if content.get('ok') == 1:
                     datas = jsonpath(content, '$.data.data.*')
                     for data in datas:
-                        data['created_at'] = standardize_date(data['created_at'])
-                        flag = checkLevel(level, origin_user['screen_name'], data['raw_text'])
+                        data['created_at'] = standardize_date(
+                            data['created_at'])
+                        flag = checkLevel(
+                            level, origin_user['screen_name'], data['raw_text'])
                         if flag:
                             this_dict = {
                                 'center_bw_id': center_bw_id,
@@ -185,8 +197,10 @@ def get_repost_info(center_bw_id, bw_id, level, writer, logger, temp_writer, sin
                             idList.append({'bw_id': data['id']})
                             # 判断是否是规定时间之后产生的微博
                             if since_date:
-                                since_date = datetime.strptime(since_date, '%Y-%m-%d')
-                                created_at = datetime.strptime(data['created_at'], '%Y-%m-%d')
+                                since_date = datetime.strptime(
+                                    since_date, '%Y-%m-%d')
+                                created_at = datetime.strptime(
+                                    data['created_at'], '%Y-%m-%d')
                                 if (created_at > since_date):
                                     if_crawl = False
                             else:
@@ -205,7 +219,8 @@ def get_repost_info(center_bw_id, bw_id, level, writer, logger, temp_writer, sin
                     page_count -= 1
                     time.sleep(60)
                 else:
-                    logger.error(f"Cannot get page {page_count} of bw {bw_id}. {e}")
+                    logger.error(
+                        f"Cannot get page {page_count} of bw {bw_id}. {e}")
         # 爬取完所有页数，将idList写入对应的level文件
         if idList:
             temp_writer.write_csv(idList)

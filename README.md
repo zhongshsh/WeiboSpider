@@ -1,112 +1,94 @@
 # 微博爬虫
 
+无需登录，但是过渡频繁访问会导致IP封号几个小时，项目中使用了几种方法缓解这一问题。
+
 ## 前言
 
-完整项目请转：https://github.com/WIN0624/Weibo_RepostRelationship_Visualization_Platform
+完整项目请转https://github.com/WIN0624/Weibo_RepostRelationship_Visualization_Platform，此部分为项目的爬虫模块，爬虫的任务是爬取[手机版微博](https://m.weibo.cn/)数据。
 
-此部分为项目的爬虫模块，爬虫的任务是爬取[微博](https://m.weibo.cn/)数据
+## 思路
 
-## 1. 基本架构
-### 1.1	代理模块`agent.py`
-其中:
-- `get_header`负责随机产生请求头部。
-- `get_proxy`负责获取代理。
-### 1.2 写入模块`csvWriter.py`
-将此前多个写方法，封装为**csvWriter**类。其中:
-- `__init__`可以根据检索或获取转发关系，生成不同的csv头部字段，并调用create_csv。
-- `create_csv`负责产生文件并写入头部。
-- `write_csv`负责将爬取到的数据，不断追加入文件。
-- `get_idList`负责获取将要爬取转发关系的下一组微博的id列表。
-- `merge_csv`负责处理整合多个csv文件并去重。
-### 1.3	获取检索词相关微博模块`get_query_info.py`
-其中：
-- `word_get_query`。负责生成相应日志。
-- `get_Topic`。解析页面返回的每条微博的text，获取话题。
-- `get_Text`。解析页面返回微博，对text进行格式处理。
-- `get_Page`。获取该检索词相关的微博页数，利于之后爬取。
-- `get_query_info`。基于检索词发送请求，解析检索页面。
-### 1.4 获取转发关系模块`get_repost_info.py`
-其中：
-- `word_repost_relationship`。多进程爬取时，用于生成日志和中间文件以及相应的断点处理。
-- `get_repost_relationship`。爬取转发关系的主逻辑函数。进行多层爬取，每层需要：
-    - 读取将要爬取的微博id列表
-    - 对于其中每个id，调用`get_repost_info`
-    - 处理该层得到的下一组要爬取微博id的写入。
-- `get_origin_info`。获取原博的相关信息，辅助`get_repost_info`。
-- `get_repost_info`。基于每条相关微博id发送请求，解析该微博页面获取转发信息。
-- `checkLevel`。用于处理[转发关系紊乱](#4-转发关系紊乱问题说明)问题。
-### 1.5 扩充话题模块`get_more_topic.py`
-根据输入的检索词，到微博话题页面检索所有相关话题，将得到的话题列表写入话题文件。
-### 1.6 时间格式化模块`standarize_date.py`
-为之后断点续存问题作准备。
-### 1.7 日志模块`logger.py`
-负责根据进程名生成每个进程对应的目录。
-### 1.8 加载配置模块`loadConfig`
-负责获取用户设置：
-- 日志存储路径`log_dir`
-- 检索词相关微博存储路径`hot__dir`。
-- 转发关系信息存储路径`repost_dir`。
-- 检索词列表`searchlist`。可以列表形式传入，若为文件则设为文件名，将会进行相应的读取操作。
-- 爬取转发关系时开启的进程数`process_num`。
-- 是否进行话题扩充`expand_topic`。布尔型。
-- 话题存储路径`topic_dir`。此处话题指根据检索词扩充获得的话题，以csv文件存储。
-## 2. 主功能函数
+### 数据组织方式
 
-### 2.1 `word_spider.py`
-- 对 searchList 中每一个词
-    - 获取微博检索页面中所有相关微博
-    - 对每条相关微博获取多层转发关系（多进程）
-- 对 searchList 中每一个词进行话题扩充。用 EPOCH 记录迭代次数。将每一轮迭代得到的扩充话题输出到用EPOCH 次数标记的文件，下一轮迭代的searchList从此文件中读出。
+HTTP网络传输中的数据组织方式有三种方式：
 
-## 3. 待完成内容
-### 3.1 `user_spider.py`
-- [ ] 根据用户名获取所有微博，并对每条微博获取多层转发关系。可用于之后研究特定大V的热门微博转发情况。
+* HTML方式
+* XML方式
+* JSON方式
 
-## 4. 转发关系紊乱问题说明
+打开[手机版微博](https://m.weibo.cn/)首页，按下F12，选择【网络】-【XHR】，可以看到接收到如下数据：
 
-### 4.1 紊乱在微博页面的显示
+<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635230542661.png" alt="1635230542661" style="zoom:50%;" />
 
-在爬取微博的直接转发关系时，原博的转发会混入间接转发的内容：
+因此确定微博的数据组织方式为JSON。
 
-  <img src="https://raw.githubusercontent.com/WIN0624/IMAGE/master/img/20200724121139.png" width="50%" height="50%">
+### 爬取目标数据
 
-而按照当前的爬取逻辑，爬虫会将这些间接转发的内容当做直接转发的微博处理。
+我们想要构建微博转发关系图谱，并在图谱上展示用户具体数据。因此，所需的核心实体为【发表的微博】。发现微博的途径一般为【在搜索框进行关键词检索-检索出与检索词相关的微博网页】，因此，我以倒推的方式分析如何爬取到【发表的微博】。
 
-### 4.2 紊乱在爬取数据中的体现
-* **问题：同一条微博，同时属于多个转发层级** <br>
-  对于显示紊乱的微博，其在整一条转发链的每级爬取都会出现。<br>
-  以A为原创微博为例，转发链为"A <-B <-C <-D <-E"。<br>
-  若E为紊乱微博，则在爬取A、B、C、D时都会出现该紊乱微博，则爬虫会将E分别处理为第1、2、3、4层转发，即其与B（直接转发A）、C、D同层，最后才将其记录为D的直接转发。
-> 注：整条转发链上的其它微博也会重复记录（即以上例子中C、D两条微博也是紊乱微博，会被多次记录）
+#### 检索结果页
 
-* 体现1：爬取A、B、C直接转发时，对应字段会反复出现这条微博<br>
-  [例子]<br>
-  <img src="https://raw.githubusercontent.com/WIN0624/IMAGE/master/img/20200724151530.png" width="50%" height="50%"><br>
-  其转发数据显示如下（实际上应取最后一层）：<br>
-  <img src="https://raw.githubusercontent.com/WIN0624/IMAGE/master/img/20200724151705.png" width="70%" height="70%">
+先分析【检索结果页】，如下所示：
 
-* 体现2：将爬取紊乱微博的转发关系时，level各不相同。实际上，仅最高level为正确的层数。<br>
-  <img src="https://raw.githubusercontent.com/WIN0624/IMAGE/master/img/20200724152940.png" width="60%" height="60%">
+<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635230892352.png" alt="1635230892352" style="zoom:50%;" />
 
-  ### 4.3 紊乱的特殊情况
-  对于“无为李爷”发布于7月19日的微博：
+<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635231244505.png" alt="1635231244505" style="zoom:50%;" />
 
-  <img src="https://gitee.com/WIN0624/document/raw/markdown-picture/img/image-20200813234313255.png" width="65%" height="65%">
+点击链接，跳到数据页面：
+
+<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635231309006.png" alt="1635231309006" style="zoom:50%;" />
+
+可以看到访问的链接带有我们的检索关键词【新冠疫情】，到这一步我们已经get到检索的地址。
+
+将进度条往下拉，可以看到数据有出现了page=2，说明微博是实时拉取数据的，新数据的地址以page值的形式进行更新。
+
+<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635231425980.png" alt="1635231425980" style="zoom:50%;" />
+
+到此，检索页已经分析完毕。
+
+#### 微博内容页
+
+预览检索页内容，我们可以发现检索页提供了很多信息：
+
+<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635231642037.png" alt="1635231642037" style="zoom:50%;" />
+
+这里的0~9共十条微博就是展示在检索结果页的【发表的微博】的【简要信息】，具体大家见网页。但是我们还需要爬取每一条微博的转发关系，所以我点击进入微博详情页：
+
+<img src="C:\Users\Administrator.DESKTOP-92H3RGR\AppData\Roaming\Typora\typora-user-images\1635231830101.png" alt="1635231830101" style="zoom:50%;" />
+
+可以看到repost【转发】信息的访问地址，这里的id是被转发微博的id，可以在【检索结果页】中获取。至此，爬取分析完毕。
+
+#### 总结
+
+通过【检索词+检索url】组装，得到【微博id】。通过【微博id+转发url】，爬取到转发关系。
 
 
 
-爬取到“三观不正向前冲”为一级转发，但浏览其微博发现其是间接转发：
+### 全站爬取
 
-  <img src="https://gitee.com/WIN0624/document/raw/markdown-picture/img/image-20200813234509604.png" width="60%" height="60%">
+上述爬取只能爬取到【具体关键词】下的【微博转发关系】，那么如何实现全站微博数据的爬取呢？
 
+#### 如何实现全站微博数据的爬取
 
+微博有个热搜数据的API，每隔一段时间更新一次。而每一个热搜都以tag【#文本#】的形式组织，其下有许多的相关微博。不断使用【热搜+检索url】的形式进行爬取，即能不断获得数据。
 
-这似乎是典型的转发紊乱问题，则在爬取数据中应当存在“帝吧小帅帅”的转发微博，但却没有找到相关数据，而在“无为李爷”微博的评论区域却发现了这条内容：
+此外，在爬取热搜过程中，不断收集爬取到的微博的tag信息，然后更新到tag库中，对这些tag进行检索和数据爬取。
 
-  <img src="https://gitee.com/WIN0624/document/raw/markdown-picture/img/image-20200813234630566.png" width="60%" height="60%">
+#### 如何避免数据重新爬取
 
+微博的数据更新很快，一条微博的前后两天转发量差距可能很大，需要不断重新爬取同一条微博的转发数据。那么如何确定当前转发关系是否已被爬取呢？主要通过【时间】。当前转发博文的发表时间如果在上一次爬取时间内，那么不再对当前转发关系进行保存。
 
+#### 如何提升爬取速度
 
-可见，对于转发紊乱问题的判断，不能仅仅通过转发微博内容中所含“//@”个数来判断层级，而仍是需要根据最高爬取层级来进行判断。
-  
-  
+主要通过python multiprocessing，多线程爬取的方式增加爬取速度。
+
+#### 如何解决反爬
+
+基础配置：
+
+* 使用python fake_useragent随机添加header，但这个库不是很稳定，有时候会报些错，最好自己把header数据下载到本地，自己编写个函数，随机初始化header。
+* 使用python time sleep，控制爬虫。
+* 使用多个url爬取一类信息。相同的信息【例如用户粉丝数据】往往在不同的url中出现。
+
+终极配置：主要使用的是GitHub上的这个[代理池](https://github.com/Python3WebSpider/PorxyPool)。我们在这个代理池的基础上添加了几个爬虫。很重要的一点是，http的网页需要https的代理ip，https的网页需要http的代理ip。经过我的测试，从免费代理中爬取到的ip基本上是失效的……所以，可以尝试花点小钱~~
+

@@ -3,19 +3,23 @@
 import requests
 import json
 
-#输入用户id
-#返回用户粉丝id列表以及粉丝名字列表
+# 输入用户id
+# 返回用户粉丝id列表以及粉丝名字列表
+
+
 def get_fans_info(uid):
-    n=0
+    n = 0
     fans_id_list, fans_name_list = [], []
     while True:
 
-        if(n==0):
-            url = "https://m.weibo.cn/api/container/getIndex?containerid=231051_-_fans_-_" + str(uid)
-            n+=1
+        if(n == 0):
+            url = "https://m.weibo.cn/api/container/getIndex?containerid=231051_-_fans_-_" + \
+                str(uid)
+            n += 1
         else:
-            url = "https://m.weibo.cn/api/container/getIndex?containerid=231051_-_fans_-_"+ str(uid)+"&since_id=" + str(n)
-            n+=1
+            url = "https://m.weibo.cn/api/container/getIndex?containerid=231051_-_fans_-_" + \
+                str(uid)+"&since_id=" + str(n)
+            n += 1
 
         html = requests.get(url)
         jsontext = json.loads(html.text)
@@ -30,12 +34,3 @@ def get_fans_info(uid):
             break
 
     return fans_id_list, fans_name_list
-
-
-    
-
-
-
-
-
-
