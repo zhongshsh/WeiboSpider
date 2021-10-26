@@ -3,7 +3,10 @@ import csv
 import pandas as pd
 from utils.merge_csv import mergeCSV
 
-
+'''
+爬取的数据最终保存为本地的csv文件
+此为读写文件类。
+'''
 class csvWriter(object):
 
     def __init__(self, filename, search=False, repost=False, temp=False, breakpos=False):
