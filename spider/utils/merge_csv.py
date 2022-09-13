@@ -6,13 +6,17 @@ import pandas as pd
 
 
 def mergeCSV(repost_temp_dir, filename):
-    csv_list = glob.glob(repost_temp_dir + '*.csv')
-    print(f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Find {str(len(csv_list))} csv files in total.')
-    print(f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Start Merging csv Files...')
-    with open(filename, 'w', encoding='utf-8-sig', newline='') as f:
+    csv_list = glob.glob(repost_temp_dir + "*.csv")
+    print(
+        f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Find {str(len(csv_list))} csv files in total.'
+    )
+    print(
+        f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  Start Merging csv Files...'
+    )
+    with open(filename, "w", encoding="utf-8-sig", newline="") as f:
         f_csv = csv.writer(f)
         for file in csv_list:
-            with open(file, 'r', encoding='utf-8') as f2:
+            with open(file, "r", encoding="utf-8") as f2:
                 f2_csv = csv.reader(f2)
                 rows = list(f2_csv)
                 f_csv.writerows(rows[1:])

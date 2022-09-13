@@ -5,7 +5,7 @@ from loguru import logger
 
 class BaseCrawler(object):
     urls = []
-    
+
     @retry(stop_max_attempt_number=3, retry_on_result=lambda x: x is None)
     def fetch(self, url, **kwargs):
         try:
@@ -14,16 +14,16 @@ class BaseCrawler(object):
                 return response.text
         except requests.ConnectionError:
             return
-    
+
     @logger.catch
     def crawl(self):
         """
         crawl main method
         """
         for url in self.urls:
-            logger.info(f'fetching {url}')
+            logger.info(f"fetching {url}")
             html = self.fetch(url)
-            print('html', html)
+            print("html", html)
             for proxy in self.parse(html):
-                logger.info(f'fetched proxy {proxy.string()} from {url}')
+                logger.info(f"fetched proxy {proxy.string()} from {url}")
                 yield proxy

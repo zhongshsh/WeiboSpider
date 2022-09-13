@@ -3,13 +3,14 @@ from proxypool.schemas.proxy import Proxy
 import re
 from pyquery import PyQuery as pq
 
-BASE_URL = 'http://www.kxdaili.com/dailiip/1/{page}.html'
+BASE_URL = "http://www.kxdaili.com/dailiip/1/{page}.html"
 
 
 class PremproxyCrawler(BaseCrawler):
     """
     https://premproxy.com/proxy-by-country/
     """
+
     urls = [BASE_URL.format(page=page) for page in range(1, 10)]
 
     def parse(self, html):
@@ -18,15 +19,14 @@ class PremproxyCrawler(BaseCrawler):
         :return:
         """
         doc = pq(html)
-        for item in doc('tr').items():
-            td_ip = item.find('td:first-child').text()
-            td_port = item.find('td:nth-child(2)').text()
-            if len(td_ip)>4 and td_port:
+        for item in doc("tr").items():
+            td_ip = item.find("td:first-child").text()
+            td_port = item.find("td:nth-child(2)").text()
+            if len(td_ip) > 4 and td_port:
                 yield Proxy(host=td_ip, port=td_port)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     crawler = PremproxyCrawler()
     for proxy in crawler.crawl():
         print(proxy)
-

@@ -6,9 +6,9 @@
 
 # -*- coding:UTF-8 -*-
 
-'''
+"""
 @author: panzy
-'''
+"""
 
 import requests
 import json
@@ -20,26 +20,27 @@ def pageSearchFor_uid(searchQuery):
     try:
         info = {}
         response = requests.get(
-            "https://m.weibo.cn/api/container/getIndex?containerid=100103type%3D3%26q%3D" + searchQuery + "%26t%3D0&page_type=searchall")
+            "https://m.weibo.cn/api/container/getIndex?containerid=100103type%3D3%26q%3D"
+            + searchQuery
+            + "%26t%3D0&page_type=searchall"
+        )
         print(response.url)
         response.raise_for_status()
-        jsonscript = json.loads(response.content.decode('utf-8'))
-        if jsonscript.get('ok') == 1:
+        jsonscript = json.loads(response.content.decode("utf-8"))
+        if jsonscript.get("ok") == 1:
             # length = len(json.get('data').get('cards')[1].get('card_group'))
-            for userCard in jsonscript.get('data').get('cards')[1].get('card_group'):
-                if userCard.get('user').get('screen_name') == searchQuery:
-                    info['followers_count'] = userCard.get(
-                        'user').get('followers_count')
-                    print(info['followers_count'])
-                    info['follow_count'] = userCard.get(
-                        'user').get('follow_count')
-                    info['gender'] = userCard.get('user').get('gender')
-                    info['uid'] = userCard.get('user').get('id')
-                    info['screen_name'] = userCard.get(
-                        'user').get('screen_name')
-                    info['verified'] = userCard.get('user').get('verified')
-                    info['profile_url'] = userCard.get(
-                        'user').get('profile_url')
+            for userCard in jsonscript.get("data").get("cards")[1].get("card_group"):
+                if userCard.get("user").get("screen_name") == searchQuery:
+                    info["followers_count"] = userCard.get("user").get(
+                        "followers_count"
+                    )
+                    print(info["followers_count"])
+                    info["follow_count"] = userCard.get("user").get("follow_count")
+                    info["gender"] = userCard.get("user").get("gender")
+                    info["uid"] = userCard.get("user").get("id")
+                    info["screen_name"] = userCard.get("user").get("screen_name")
+                    info["verified"] = userCard.get("user").get("verified")
+                    info["profile_url"] = userCard.get("user").get("profile_url")
                     print("successfully find the user!")
                     break
             if info == {}:
@@ -47,9 +48,10 @@ def pageSearchFor_uid(searchQuery):
         else:
             print("Warning: 该用户不存在")
     except Exception as e:
-        print('Error:\n', e)
+        print("Error:\n", e)
 
     return info
+
 
 # *************************************
 # 测试用

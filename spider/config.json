@@ -1,0 +1,11 @@
+{
+    "searchlist": ["新冠"], 
+    "expand_topic": false,
+    "hot_dir": "./data/",
+    "repost_dir": "./data/",
+    "topic_dir": "./data/",
+    "log_dir": "./log/",
+    "process_num": 2,
+    "use_proxy": false, 
+    "page_num": 1
+}

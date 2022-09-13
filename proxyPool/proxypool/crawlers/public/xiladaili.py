@@ -10,6 +10,7 @@ class XiladailiCrawler(BaseCrawler):
     """
     xiladaili crawler, http://www.xiladaili.com/
     """
+
     urls = ["http://www.xiladaili.com/"]
 
     def parse(self, html):
@@ -26,7 +27,7 @@ class XiladailiCrawler(BaseCrawler):
             yield Proxy(host=host, port=port)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     crawler = XiladailiCrawler()
     for proxy in crawler.crawl():
         print(proxy)

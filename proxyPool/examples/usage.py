@@ -1,8 +1,8 @@
 import requests
 
 
-proxypool_url = 'http://127.0.0.1:5555/random'
-target_url = 'http://httpbin.org/get'
+proxypool_url = "http://127.0.0.1:5555/random"
+target_url = "http://httpbin.org/get"
 
 
 def get_random_proxy():
@@ -20,7 +20,7 @@ def crawl(url, proxy):
     :param proxy: proxy, such as 8.8.8.8:8888
     :return: html
     """
-    proxies = {'http': 'http://' + proxy}
+    proxies = {"http": "http://" + proxy}
     return requests.get(url, proxies=proxies).text
 
 
@@ -30,10 +30,10 @@ def main():
     :return: none
     """
     proxy = get_random_proxy()
-    print('get random proxy', proxy)
+    print("get random proxy", proxy)
     html = crawl(target_url, proxy)
     print(html)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

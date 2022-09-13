@@ -4,23 +4,25 @@ from pyquery import PyQuery as pq
 import requests
 from loguru import logger
 
-BASE_URL = 'http://www.goubanjia.com/'
+BASE_URL = "http://www.goubanjia.com/"
 # <head><title>403 Forbidden</title></head>
+
 
 class GoubanjiaCrawler(BaseCrawler):
     """
     http://www.goubanjia.com/
     """
+
     urls = [BASE_URL]
 
     def crawl(self):
         for url in self.urls:
-            logger.info(f'fetching {url}')
+            logger.info(f"fetching {url}")
             requests.packages.urllib3.disable_warnings()
             html = requests.get(url, verify=False).text
             print(html)
             doc = pq(html)
-            trs = doc('.ip').items()
+            trs = doc(".ip").items()
             # print(trs)
             for tr in trs:
                 print(tr)
@@ -37,9 +39,8 @@ class GoubanjiaCrawler(BaseCrawler):
                 #         yield proxy
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     crawler = GoubanjiaCrawler()
     crawler.crawl()
     # for proxy in crawler.crawl():
     #     print(proxy)
-
