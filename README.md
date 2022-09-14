@@ -1,6 +1,6 @@
 # 微博爬虫
 
-无需登录，爬取 [手机版微博](https://m.weibo.cn/) 转发关系数据。爬取结果示例见 `./spider/data`.
+无需登录，爬取 [手机版微博](https://m.weibo.cn/) 转发关系数据。爬取结果示例见 [spider/data](https://github.com/zhongshsh/WeiboSpider/tree/master/spider/data).
 
 过渡频繁访问会导致IP封号几个小时，本项目使用了几种方法缓解这一问题。
 
