@@ -131,4 +131,3 @@ dmypy.json
 # custom
 spider/log
 spider/utils/__pycache__
-spider/data
