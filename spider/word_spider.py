@@ -17,11 +17,17 @@ def word_spider():
     config = load_config()
     hot_dir = config["hot_dir"]
     repost_dir = config["repost_dir"]
+    if not os.path.exists(hot_dir):
+        os.mkdir(hot_dir)
+    if not os.path.exists(repost_dir):
+        os.mkdir(repost_dir)
     process_num = config["process_num"]
     searchlist = config["searchlist"]
     expand_topic = config["expand_topic"]
     if expand_topic:
         topic_dir = config["topic_dir"]
+        if not os.path.exists(topic_dir):
+            os.mkdir(topic_dir)
 
     # 记录载入检索词列表的次数
     epoch = 1
@@ -76,19 +82,24 @@ def word_spider():
             )
             # 正常爬取时，遵循用户设置的进程数
             # 断点处理时，遵循每个进程处理不多于10个center_bw_id的原则
-            p = Pool(len(idList))
+            # p = Pool(len(idList))
             for num, item in enumerate(idList):
                 if item.get("breakpos"):
-                    p.apply_async(
-                        word_repost_relationship,
-                        args=(num, temp, item["sublist"], item["breakpos"]),
+                    word_repost_relationship(
+                        num, temp, item["sublist"], item["breakpos"]
                     )
+                #     p.apply_async(
+                #         word_repost_relationship,
+                #         args=(num, temp, item["sublist"], item["breakpos"]),
+                #     )
                 else:
-                    p.apply_async(
-                        word_repost_relationship, args=(num, temp, item["sublist"])
-                    )
-            p.close()
-            p.join()
+                    word_repost_relationship(num, temp, item["sublist"])
+                #     p.apply_async(
+                #         word_repost_relationship, args=(num, temp, item["sublist"])
+                #     )
+
+            # p.close()
+            # p.join()
 
             # 整合中间文件成完整文件并去重
             repost_writer.merge_csv(temp)

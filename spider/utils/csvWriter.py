@@ -2,6 +2,7 @@ import os
 import csv
 import pandas as pd
 from utils.merge_csv import mergeCSV
+import time
 
 """
 爬取的数据最终保存为本地的csv文件
@@ -87,6 +88,18 @@ class csvWriter(object):
                 csv_writer.writerow(this_dict)
             else:
                 csv_writer.writerows(result_list)
+
+    # 删除csv稳健，与write_csv配套
+    def remove_csv(self):
+        if os.path.exists(self.filename):
+            os.remove(self.filename)
+            print(
+                f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}] successfully remove {self.filename} .'
+            )
+
+    def is_empty(self):
+        with open(self.filename, "r") as f:
+            return len(f.read().strip().split("\n")) > 1
 
     # 获取要爬取转发关系的列表
     def get_idList(self, bw_id=None):

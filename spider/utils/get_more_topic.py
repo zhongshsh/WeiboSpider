@@ -23,10 +23,10 @@ def get_more_topic(query, epoch, topic_dir):
             f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  EPOCH: {epoch}. Keyword: {query}. Get {page} pages of new topics.'
         )
     except Exception:
-        time.sleep(60)
+        time.sleep(1)
         get_more_topic(query, epoch, topic_dir)
     while page_count <= page:
-        time.sleep(3)
+        time.sleep(1)
         page_count += 1
         this_url = base_url + "&page=" + str(page_count)
         print(

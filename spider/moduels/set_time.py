@@ -48,13 +48,13 @@ def get_bw_info(user_dict, filename):
             ):
                 error[url] = 1
                 n -= 1
-                time.sleep(5)
+                time.sleep(1)
                 print("重新请求-->", url)
             elif (
                 str(e) == "Expecting value: line 1 column 1 (char 0)"
                 and error.get(url, -1) == 1
             ):
-                time.sleep(5)
+                time.sleep(1)
             else:
                 b = False
                 print("Error:\n", e)
@@ -129,7 +129,7 @@ def get_info(search_list, since_date=None):
                 break
             except requests.HTTPError:
                 print("I have met the HTTPError! I got to stop 3 minutes!")
-                time.sleep(180)
+                time.sleep(1)
             except Exception:
                 traceback.print_exc()
                 continue
@@ -139,5 +139,5 @@ def get_info(search_list, since_date=None):
         results_dict[wd] = wd_list
         endtime = str(datetime.now()).split(" ")[1]
         print("Get %d weibo of %s at %s" % (len(wd_list), wd, endtime))
-        time.sleep(5)
+        time.sleep(1)
     return results_list, results_dict

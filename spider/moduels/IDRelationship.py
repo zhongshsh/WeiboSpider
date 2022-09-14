@@ -107,12 +107,12 @@ def get_bw_id(user_id, d):  # 用户id和主页前缀
                 error[url] = 1
                 n -= 1
                 print("重新请求主页--->", url)
-                time.sleep(5)
+                time.sleep(1)
             elif (
                 str(e) == "Expecting value: line 1 column 1 (char 0)"
                 and error.get(url, -1) == 1
             ):
-                time.sleep(5)
+                time.sleep(1)
             else:
                 b = False
                 print("错误信息：\n", e)
@@ -173,13 +173,13 @@ def get_bw_info(user_dict, filename):
             ):
                 error[url] = 1
                 n -= 1
-                time.sleep(5)
+                time.sleep(1)
                 print("重新请求-->", url)
             elif (
                 str(e) == "Expecting value: line 1 column 1 (char 0)"
                 and error.get(url, -1) == 1
             ):
-                time.sleep(5)
+                time.sleep(1)
             else:
                 b = False
                 print("Error:\n", e)
@@ -214,7 +214,7 @@ def get_rca_count(bw_id):
             and error.get(url, -1) == -1
         ):
             error[url] = 1
-            time.sleep(5)
+            time.sleep(1)
             get_rca_count(bw_id)
             print("重新请求-->", url)
         else:

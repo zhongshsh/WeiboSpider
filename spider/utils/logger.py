@@ -6,6 +6,8 @@ from utils.loadConfig import load_config
 class Logger:
     def __init__(self, name):
         dir = load_config()["log_dir"]
+        if not os.path.exists(dir):
+            os.mkdir(dir)
         self.name = dir + name + "_spider.log"
 
     def getLogger(self):

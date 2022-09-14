@@ -44,7 +44,7 @@ def word_repost_relationship(batch_num, temp_dir, searchList, breakpos=None):
     print("Finish!")
     # 爬取完后，删除日志
     # 日志主要用于处理断点，若爬取完成则不再需要
-    log.remove()
+    # log.remove()
 
 
 # 获取转发关系的主函数
@@ -75,6 +75,10 @@ def get_repost_relationship(bw_id, repost_writer, level_dir, logger, breakpos=No
             # 非断点，则照常创建新文件
             temp_writer = csvWriter(temp_file, temp=True)
 
+        if temp_writer.is_empty():
+            idList = []
+            continue
+
         # 获得该层所有bw_id的直接转发关系
         for bw_id in idList:
             get_repost_info(
@@ -94,7 +98,7 @@ def get_repost_relationship(bw_id, repost_writer, level_dir, logger, breakpos=No
 @retry(stop_max_attempt_number=5, wait_fixed=3000)
 def get_origin_info(bw_id, logger):
     try:
-        time.sleep(5)
+        time.sleep(1)
         url = "https://m.weibo.cn/statuses/show?id=" + str(bw_id)
         r = requests.get(url, headers=get_header(), proxies=get_proxy())
         r.raise_for_status()
@@ -161,74 +165,89 @@ def get_repost_info(
         )
     else:
         logger.info(f"Center bw : {center_bw_id}. Get {page} pages of bw {bw_id}.")
+        # base_url = (
+        #     "https://m.weibo.cn/statuses/repostTimeline?id=" + str(bw_id) + "&page="
+        # )
         base_url = (
-            "https://m.weibo.cn/api/statuses/repostTimeline?id=" + str(bw_id) + "&page="
+            "https://m.weibo.cn/comments/hotflow?id="
+            + str(bw_id)
+            + "&mid="
+            + str(bw_id)
+            + "&max_id_type="
         )
         page_count = 0
         while page_count <= page:
             page_count += 1
             result_list = []
-            try:
-                time.sleep(7)
-                this_url = base_url + str(page_count)
-                logger.info(
-                    f"Center bw : {center_bw_id}. level: {level}. Crawling page {page_count} of bw {bw_id}."
+            # try:
+            time.sleep(1)
+            this_url = base_url + str(page_count)
+            logger.info(
+                f"Center bw : {center_bw_id}. level: {level}. Crawling page {page_count} of bw {bw_id}."
+            )
+            r = requests.get(this_url, headers=get_header(), proxies=get_proxy())
+            if r.status_code == 200:
+                print(
+                    f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  getting repost information from {this_url}.'
                 )
-                r = requests.get(this_url, headers=get_header(), proxies=get_proxy())
-                r.raise_for_status()
                 r.encoding = r.apparent_encoding
                 content = json.loads(r.text)
-                if content.get("ok") == 1:
-                    datas = jsonpath(content, "$.data.data.*")
-                    for data in datas:
-                        data["created_at"] = standardize_date(data["created_at"])
-                        flag = checkLevel(
-                            level, origin_user["screen_name"], data["raw_text"]
-                        )
-                        if flag:
-                            this_dict = {
-                                "center_bw_id": center_bw_id,
-                                "user_id": origin_user["id"],
-                                "screen_name": origin_user["screen_name"],
-                                "bw_id": bw_id,
-                                "origin": origin,
-                                "repost_count": rp_count,
-                                "fs_count": origin_user["followers_count"],
-                                "fs_user_id": data["user"]["id"],
-                                "fs_screen_name": data["user"]["screen_name"],
-                                "fs_bw_id": data["id"],
-                                "fs_fans_count": data["user"]["followers_count"],
-                                "level": level,
-                                "raw_text": data["raw_text"],
-                                "created_at": data["created_at"],
-                            }
-                            # 将待爬取id放入下一轮爬取的id列表(即其作为原博时)
-                            idList.append({"bw_id": data["id"]})
-                            # 判断是否是规定时间之后产生的微博
-                            if since_date:
-                                since_date = datetime.strptime(since_date, "%Y-%m-%d")
-                                created_at = datetime.strptime(
-                                    data["created_at"], "%Y-%m-%d"
-                                )
-                                if created_at > since_date:
-                                    if_crawl = False
-                            else:
-                                if_crawl = False
-                            if not if_crawl:
-                                result_list.append(this_dict)
-                        else:
-                            continue
-                    # 将符合规定时间的内容写入csv
-                    writer.write_csv(result_list)
-                else:
+                datas = jsonpath(content, "$.data.data.*")
+                if not datas:
+                    print(
+                        f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  bw {bw_id} may "已开启评论精选".'
+                    )
                     continue
-            except Exception as e:
-                if error.get(this_url) is None:
-                    error[this_url] = 1
-                    page_count -= 1
-                    time.sleep(60)
-                else:
-                    logger.error(f"Cannot get page {page_count} of bw {bw_id}. {e}")
+                for data in datas:
+                    data["created_at"] = standardize_date(data["created_at"])
+                    flag = checkLevel(level, origin_user["screen_name"], data["text"])
+                    if flag:
+                        this_dict = {
+                            "center_bw_id": center_bw_id,
+                            "user_id": origin_user["id"],
+                            "screen_name": origin_user["screen_name"],
+                            "bw_id": bw_id,
+                            "origin": origin,
+                            "repost_count": rp_count,
+                            "fs_count": origin_user["followers_count"],
+                            "fs_user_id": data["user"]["id"],
+                            "fs_screen_name": data["user"]["screen_name"],
+                            "fs_bw_id": data["id"],
+                            "fs_fans_count": data["user"]["followers_count"],
+                            "level": level,
+                            "raw_text": data["text"],
+                            "created_at": data["created_at"],
+                        }
+                        # 将待爬取id放入下一轮爬取的id列表(即其作为原博时)
+                        idList.append({"bw_id": data["id"]})
+                        # 判断是否是规定时间之后产生的微博
+                        if since_date:
+                            since_date = datetime.strptime(since_date, "%Y-%m-%d")
+                            created_at = datetime.strptime(
+                                data["created_at"], "%Y-%m-%d"
+                            )
+                            if created_at > since_date:
+                                if_crawl = False
+                        else:
+                            if_crawl = False
+                        if not if_crawl:
+                            result_list.append(this_dict)
+                    else:
+                        print(
+                            f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}]  failed during getting repost information from {this_url}.'
+                        )
+                        continue
+                # 将符合规定时间的内容写入csv
+                writer.write_csv(result_list)
+            else:
+                continue
+            # except Exception as e:
+            #     if error.get(this_url) is None:
+            #         error[this_url] = 1
+            #         page_count -= 1
+            #         time.sleep(1)
+            #     else:
+            #         logger.error(f"Cannot get page {page_count} of bw {bw_id}. {e}")
         # 爬取完所有页数，将idList写入对应的level文件
         if idList:
             temp_writer.write_csv(idList)

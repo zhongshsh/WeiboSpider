@@ -138,7 +138,7 @@ def get_info(search_list, since_date=None):
                 break
             except requests.HTTPError:
                 print("I have met the HTTPError! I got to stop 3 minutes!")
-                time.sleep(180)
+                time.sleep(1)
             except Exception:
                 traceback.print_exc()
                 continue
@@ -148,7 +148,7 @@ def get_info(search_list, since_date=None):
         results_dict[wd] = wd_list
         endtime = str(datetime.now()).split(" ")[1]
         print("Get %d weibo of %s at %s" % (len(wd_list), wd, endtime))
-        time.sleep(5)
+        time.sleep(1)
     return results_list, results_dict
 
 

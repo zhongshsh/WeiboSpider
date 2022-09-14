@@ -80,7 +80,7 @@ def get_query_info(wd, writer, logger, since_date=None):
         )
         try:
             r = requests.get(this_url, headers=get_header(), proxies=get_proxy())
-            time.sleep(3)
+            time.sleep(1)
             logger.info(f"Crawling Query. Page {page_count} of keyword {wd}")
             r.raise_for_status()
             r.encoding = r.apparent_encoding
@@ -121,7 +121,7 @@ def get_query_info(wd, writer, logger, since_date=None):
             if error.get(this_url) is None:
                 error[this_url] = 1
                 page_count -= 1
-                time.sleep(60)
+                time.sleep(1)
             # 若第二次错误，则报错
             else:
                 logger.error(f"Page {page_count} failed. {e}")

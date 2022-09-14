@@ -118,12 +118,12 @@ def get_bw_id(user_id, sheader):  # 用户id和主页前缀
                 error[url] = 1
                 n -= 1
                 print("重新请求主页--->", url)
-                time.sleep(5)
+                time.sleep(1)
             elif (
                 str(e) == "Expecting value: line 1 column 1 (char 0)"
                 and error.get(url, -1) == 1
             ):
-                time.sleep(5)
+                time.sleep(1)
             else:
                 b = False
                 print("错误信息：\n", e)
